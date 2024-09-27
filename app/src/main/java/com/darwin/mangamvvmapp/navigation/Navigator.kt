@@ -1,12 +1,26 @@
 package com.darwin.mangamvvmapp.navigation
 
 import android.annotation.SuppressLint
-import android.util.Log
-import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.Button
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemColors
+
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -16,24 +30,48 @@ import com.darwin.mangamvvmapp.features.feature_favourites.presentaion.component
 import com.darwin.mangamvvmapp.features.feature_manga_info.presentation.components.MangaInfoScreen
 import com.darwin.mangamvvmapp.features.feature_manga_search.presentation.components.MangaSearchScreen
 import com.darwin.mangamvvmapp.features.feature_reader.presentation.components.MangaReaderScreen
+import com.darwin.mangamvvmapp.navigation.utils.BottomNavItem
+import com.darwin.mangamvvmapp.navigation.utils.bottomItems
 
 
-@SuppressLint("RestrictedApi")
+@SuppressLint("RestrictedApi", "UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun Navigator() {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    if (currentDestination != null) {
-        Log.d("batman","the route is ${currentDestination.route}")
+    var selectedItemIndex by rememberSaveable {
+        mutableStateOf(0)
     }
-    Column {  // Log the current route
+    Scaffold(
+        bottomBar = {
+            NavigationBar(containerColor = MaterialTheme.colorScheme.background) {
+                bottomItems().forEachIndexed { index, item ->
+                    NavigationBarItem(
+                        selected = selectedItemIndex == index,
+                        onClick = { selectedItemIndex = index },
+                        icon = {
+                            Icon(
+                                imageVector = if (index == selectedItemIndex) {
+                                    item.selectedIcon
+                                } else {
+                                    item.unselectedIcon
+                                },
+                                contentDescription = "",
+                                modifier = Modifier.size(30.dp)
+                            )
+                        }
+                    )
 
-
+                }
+            }
+        }
+    ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = NavMangaSearchScreen
+            startDestination = NavMangaSearchScreen,
+            modifier = Modifier.padding(innerPadding)
         ) {
             composable<NavMangaSearchScreen> {
                 MangaSearchScreen(navController)
@@ -49,8 +87,7 @@ fun Navigator() {
                 MangaFavouritesScreen()
             }
         }
-        Button(onClick = {
-            navController.navigate(NavMangaFavouritesScreen)
-        }) { }
+
     }
+
 }
