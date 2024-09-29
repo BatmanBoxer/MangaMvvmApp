@@ -10,7 +10,7 @@ data class FavouritesResult(
 )
 fun FavouritesResult.toFavouritesEntity(): FavouritesEntity {
     return FavouritesEntity(
-        id=id,
+        id=null,
         url=url,
         imgUrl=imgUrl,
         name=name

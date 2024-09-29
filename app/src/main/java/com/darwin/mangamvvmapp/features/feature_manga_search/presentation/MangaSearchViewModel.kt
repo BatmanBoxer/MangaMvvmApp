@@ -18,22 +18,36 @@ import javax.inject.Inject
 @HiltViewModel
 class MangaSearchViewModel @Inject constructor(
     private val useCaseSearchManga: UseCaseSearchManga
-):ViewModel() {
+) : ViewModel() {
     private val _state = mutableStateOf<MangaSearchScreenState>(MangaSearchScreenState())
     val state: State<MangaSearchScreenState?> = _state
+
     init {
-        search()
+        search("solo")
     }
-    fun search(){
-        useCaseSearchManga(Constants.MANGANATO,"solo").onEach { result->
-            when(result){
-                is Resource.Error -> {}
-                is Resource.Loading -> {}
-                is Resource.Success -> {
-                    _state.value = MangaSearchScreenState(mangaSearchResult = result.data ?: emptyList())
+
+    fun search(name: String) {
+        if (name.isNotBlank()){
+            useCaseSearchManga(Constants.MANGANATO, name).onEach { result ->
+                when (result) {
+                    is Resource.Error -> {
+                        _state.value = MangaSearchScreenState(error = result.message!!)
+                    }
+
+                    is Resource.Loading -> {
+                        _state.value = MangaSearchScreenState(isLoading = true)
+                    }
+
+                    is Resource.Success -> {
+                        _state.value = MangaSearchScreenState(
+                            mangaSearchResult = result.data ?: emptyList(),
+                            isLoading = false
+                        )
+                    }
                 }
-            }
-        }.launchIn(viewModelScope)
+            }.launchIn(viewModelScope)
+        }
 
     }
+
 }

@@ -20,3 +20,10 @@ data class NavMangaInfoScreen(
 
 @Serializable
 object NavMangaFavouritesScreen
+
+sealed class NavRoutes{
+    object MangaSearch : NavRoutes() // For NavMangaSearchScreen
+    data class MangaReader(val screen: NavMangaReaderScreen) : NavRoutes() // For NavMangaReaderScreen
+    data class MangaInfo(val screen: NavMangaInfoScreen) : NavRoutes() // For NavMangaInfoScreen
+    object MangaFavourites : NavRoutes()
+}

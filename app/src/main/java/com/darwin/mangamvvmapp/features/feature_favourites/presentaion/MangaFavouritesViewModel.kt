@@ -1,6 +1,7 @@
 package com.darwin.mangamvvmapp.features.feature_favourites.presentaion
 
 import android.util.Log
+import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.darwin.mangamvvmapp.commons.Resource
@@ -19,31 +20,21 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MangaFavouritesViewModel @Inject constructor(
-    useCaseGetManga: UseCaseGetManga,
-    useCaseAddManga: UseCaseAddManga
+    private val useCaseGetManga: UseCaseGetManga,
 ):ViewModel() {
-    fun test(){
-        Log.d("batman","favourites")
-    }
+    var favMangas = mutableStateListOf<FavouritesResult>()
     init {
-        viewModelScope.launch {
-            delay(1000)
-            useCaseAddManga(FavouritesResult(
-                id = 1,
-                name = "batman2",
-                url = "batman2",
-                imgUrl = "batman2"
-
-            ))
-        }
-        Log.d("batman","favourites")
+        getManga()
+    }
+    private fun getManga(){
         useCaseGetManga().onEach { result->
             when(result){
                 is Resource.Error -> {}
                 is Resource.Loading -> {}
-                is Resource.Success -> {result.data?.map {
-                    Log.d("batman","name is $it")
-                }}
+                is Resource.Success -> {
+                    val favMangasfromdb = result.data
+                    favMangas.addAll(favMangasfromdb ?: emptyList())
+                }
             }
         }.launchIn(viewModelScope)
 

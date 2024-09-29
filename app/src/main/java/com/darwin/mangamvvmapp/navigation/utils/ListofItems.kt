@@ -12,25 +12,13 @@ import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.MailOutline
 import androidx.compose.material.icons.outlined.Settings
 
-fun bottomItems():List<BottomNavItem> {
+fun bottomItems(): List<BottomNavItem> {
 
-    return  listOf(
+    return listOf(
         BottomNavItem(
             title = "Home",
             selectedIcon = Icons.Filled.Home,
             unselectedIcon = Icons.Outlined.Home,
-            hasNews = false
-        ),
-        BottomNavItem(
-            title = "Favourites",
-            selectedIcon = Icons.Filled.Favorite,
-            unselectedIcon = Icons.Outlined.FavoriteBorder,
-            hasNews = false
-        ),
-        BottomNavItem(
-            title = "Settings",
-            selectedIcon = Icons.Filled.Settings,
-            unselectedIcon = Icons.Outlined.Settings,
             hasNews = false
         ),
         BottomNavItem(
@@ -40,9 +28,20 @@ fun bottomItems():List<BottomNavItem> {
             hasNews = false
         ),
         BottomNavItem(
+            title = "Favourites",
+            selectedIcon = Icons.Filled.Favorite,
+            unselectedIcon = Icons.Outlined.FavoriteBorder,
+            hasNews = false,
+        ),
+        BottomNavItem(
             title = "Updates",
             selectedIcon = Icons.Filled.Info,
             unselectedIcon = Icons.Outlined.Info,
+            hasNews = false
+        ), BottomNavItem(
+            title = "Settings",
+            selectedIcon = Icons.Filled.Settings,
+            unselectedIcon = Icons.Outlined.Settings,
             hasNews = false
         )
     )

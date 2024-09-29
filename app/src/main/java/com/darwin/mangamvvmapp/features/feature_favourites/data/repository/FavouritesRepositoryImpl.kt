@@ -14,8 +14,12 @@ class FavouritesRepositoryImpl @Inject constructor(
       return dao.getFavouritesMangas() .map { it.toFavouriteResult() }
     }
 
-    override suspend fun deleteFavouritesManga(favouritesEntity: FavouritesEntity) {
-        dao.deleteFavouritesManga(favouritesEntity=favouritesEntity)
+    override suspend fun deleteFavouritesManga(url: String) {
+        dao.deleteFavouritesMangaByUrl(url = url)
+    }
+
+    override suspend fun getFavouriteMangaByUrl(url: String): FavouritesResult {
+        return dao.getFavouriteMangaByUrl(url)!!.toFavouriteResult()
     }
 
     override suspend fun addFavouritesManga(favouritesEntity: FavouritesEntity) {

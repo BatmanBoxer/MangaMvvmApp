@@ -8,7 +8,7 @@ import javax.inject.Inject
 class UseCaseDeleteManga @Inject constructor(
     private val repository: FavouritesRepository
 ) {
-    suspend operator fun invoke(favouritesResult: FavouritesResult){
-        repository.deleteFavouritesManga(favouritesResult.toFavouritesEntity())
+    suspend operator fun invoke(url:String){
+        repository.deleteFavouritesManga(url)
     }
 }
