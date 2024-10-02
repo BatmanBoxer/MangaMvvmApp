@@ -2,6 +2,8 @@ package com.darwin.mangamvvmapp.navigation
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -45,8 +47,8 @@ import com.darwin.mangamvvmapp.navigation.utils.bottomItems
 @Composable
 fun Navigator(
     mangaSearchViewModel: MangaSearchViewModel = hiltViewModel(),
-
     ) {
+
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
@@ -62,7 +64,7 @@ fun Navigator(
                 SearchTopAppBar(mangaSearchViewModel,scrollBehavior)
             }
             if (currentDestination?.route?.contains("NavMangaInfoScreen") == true) {
-                InfoTopAppBar(navController, scrollBehavior)
+                InfoTopAppBar( navController, scrollBehavior)
             }
             if (currentDestination?.route?.contains("NavMangaFavouritesScreen") == true) {
                 FavouritesTopAppBar(scrollBehavior)
@@ -107,10 +109,9 @@ fun Navigator(
     ) { innerPadding ->
         NavHost(
             navController = navController,
-//            enterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Start, tween(700)) },
-//            exitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Start, tween(700)) },
-//            popEnterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.End, tween(700)) },
-//            popExitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End, tween(700)) },
+            enterTransition = {
+                EnterTransition.None
+            },
             startDestination = NavMangaSearchScreen,
             modifier = Modifier.padding(innerPadding)
         ) {
@@ -136,7 +137,8 @@ fun Navigator(
                 val args = it.toRoute<NavMangaInfoScreen>()
                 MangaInfoScreen(
                     navController = navController,
-                    scrollBehavior = scrollBehavior
+                    scrollBehavior = scrollBehavior,
+
                 )
             }
             composable<NavMangaFavouritesScreen> {

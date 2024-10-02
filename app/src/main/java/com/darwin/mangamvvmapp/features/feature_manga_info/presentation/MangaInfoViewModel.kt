@@ -12,12 +12,15 @@ import com.darwin.mangamvvmapp.commons.Resource
 import com.darwin.mangamvvmapp.features.feature_favourites.domain.model.FavouritesResult
 import com.darwin.mangamvvmapp.features.feature_favourites.domain.use_case.UseCaseAddManga
 import com.darwin.mangamvvmapp.features.feature_favourites.domain.use_case.UseCaseDeleteManga
-import com.darwin.mangamvvmapp.features.feature_favourites.domain.use_case.UseCaseGetManga
 import com.darwin.mangamvvmapp.features.feature_favourites.domain.use_case.UseCaseGetMangaByUrl
 import com.darwin.mangamvvmapp.features.feature_manga_info.domain.model.ChapterResult
 import com.darwin.mangamvvmapp.features.feature_manga_info.domain.use_case.UseCaseGetMangaInfo
+import com.darwin.mangamvvmapp.features.feature_manga_info.utils.MangaChapterState
+import com.darwin.mangamvvmapp.features.feature_reader.data.local.ReadChaptersEntity
 import com.darwin.mangamvvmapp.features.feature_reader.domain.use_cases.UseCaseGetChaptersFromDb
+import com.darwin.mangamvvmapp.features.feature_reader.domain.use_cases.UseCaseUpsertChapters
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -30,7 +33,8 @@ class MangaInfoViewModel @Inject constructor(
     private val useCaseDeleteManga: UseCaseDeleteManga,
     private val useCaseGetMangaByUrl: UseCaseGetMangaByUrl,
     private val savedStateHandle: SavedStateHandle,
-    private val useCaseGetChaptersFromDb: UseCaseGetChaptersFromDb
+    private val useCaseGetChaptersFromDb: UseCaseGetChaptersFromDb,
+    private val useCaseUpsertChapters:UseCaseUpsertChapters
 ) : ViewModel() {
     val readChapters = mutableStateListOf<String>()
     var chapters = mutableStateListOf<ChapterResult>()
@@ -42,17 +46,41 @@ class MangaInfoViewModel @Inject constructor(
     var isLoading by mutableStateOf(true)
     var isErrror by mutableStateOf("")
 
+
+
     val url: String = savedStateHandle["url"] ?: ""
     val path: String = savedStateHandle["path"] ?: ""
 
     init {
         getMangaInfo()
-
     }
-    fun updateReadState(){
-        viewModelScope.launch {
-            readChapters.addAll(useCaseGetChaptersFromDb(url).chapters)
+    fun updateReadState() {
+        viewModelScope.launch(Dispatchers.Main) {
+            val result = useCaseGetChaptersFromDb(url)
+            readChapters.clear()  // Clear existing read chapters
+            readChapters.addAll(result.chapters)  // Add new read chapters
         }
+    }
+
+    fun addAddToDb(){
+        viewModelScope.launch {
+           useCaseUpsertChapters(ReadChaptersEntity(
+               url,
+               chapters = chapters.map { it.url }
+           ))
+        }
+        updateReadState()
+    }
+    fun removeFromDb(){
+        viewModelScope.launch {
+            useCaseUpsertChapters(
+                ReadChaptersEntity(
+                url,
+                chapters = listOf("")
+            )
+            )
+        }
+        updateReadState()
     }
     private fun getFavouriteState(url: String) {
         useCaseGetMangaByUrl(url).onEach { result ->

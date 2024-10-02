@@ -15,6 +15,7 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
+import com.darwin.mangamvvmapp.features.feature_manga_info.presentation.MangaInfoViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -32,7 +32,7 @@ fun ImageCard(
     title:String
 ){
     Card(
-        modifier = Modifier.fillMaxWidth().height(300.dp).padding(4.dp),
+        modifier = Modifier.fillMaxWidth().height(280.dp).padding(4.dp),
         shape = RoundedCornerShape(15.dp),
         elevation = CardDefaults.elevatedCardElevation(5.dp)
     ) {

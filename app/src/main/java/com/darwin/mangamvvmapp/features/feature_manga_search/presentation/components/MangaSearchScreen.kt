@@ -47,7 +47,7 @@ fun MangaSearchScreen(
                 columns = GridCells.Fixed(2),
                 modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
             ) {
-                items(viewModel.state.value?.mangaSearchResult!!) { item ->
+                items(viewModel.state.value?.mangaSearchResult!!, key = {item -> item.img }) { item ->
                     ImageCard(
                         url = item.img,
                         contentDescription = item.title,
