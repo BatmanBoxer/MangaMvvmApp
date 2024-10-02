@@ -16,6 +16,7 @@ import com.darwin.mangamvvmapp.features.feature_favourites.domain.use_case.UseCa
 import com.darwin.mangamvvmapp.features.feature_favourites.domain.use_case.UseCaseGetMangaByUrl
 import com.darwin.mangamvvmapp.features.feature_manga_info.domain.model.ChapterResult
 import com.darwin.mangamvvmapp.features.feature_manga_info.domain.use_case.UseCaseGetMangaInfo
+import com.darwin.mangamvvmapp.features.feature_reader.domain.use_cases.UseCaseGetChaptersFromDb
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -28,26 +29,34 @@ class MangaInfoViewModel @Inject constructor(
     private val useCaseAddManga: UseCaseAddManga,
     private val useCaseDeleteManga: UseCaseDeleteManga,
     private val useCaseGetMangaByUrl: UseCaseGetMangaByUrl,
-    private val savedStateHandle: SavedStateHandle
+    private val savedStateHandle: SavedStateHandle,
+    private val useCaseGetChaptersFromDb: UseCaseGetChaptersFromDb
 ) : ViewModel() {
-
+    val readChapters = mutableStateListOf<String>()
     var chapters = mutableStateListOf<ChapterResult>()
     var genres = mutableStateListOf<String>()
     var description by mutableStateOf("")
     var img by mutableStateOf("")
     var title by mutableStateOf("")
     var favouriteState by mutableStateOf(false)
+    var isLoading by mutableStateOf(true)
+    var isErrror by mutableStateOf("")
 
     val url: String = savedStateHandle["url"] ?: ""
     val path: String = savedStateHandle["path"] ?: ""
 
     init {
         getMangaInfo()
-    }
 
+    }
+    fun updateReadState(){
+        viewModelScope.launch {
+            readChapters.addAll(useCaseGetChaptersFromDb(url).chapters)
+        }
+    }
     private fun getFavouriteState(url: String) {
         useCaseGetMangaByUrl(url).onEach { result ->
-            Log.d("koitala", result.data.toString())
+            Log.d("koirala", result.data.toString())
             when (result) {
                 is Resource.Error -> {
                     favouriteState = false
@@ -98,8 +107,12 @@ class MangaInfoViewModel @Inject constructor(
         Log.d("Batman", "info2")
         useCaseGetMangaInfo(url = url, path = path).onEach { result ->
             when (result) {
-                is Resource.Error -> {}
-                is Resource.Loading -> {}
+                is Resource.Error -> {
+                    isErrror = result.message.toString()
+                }
+                is Resource.Loading -> {
+                    isLoading = true
+                }
                 is Resource.Success -> {
 
                     chapters.addAll(result.data?.chapters ?: emptyList())
@@ -107,6 +120,7 @@ class MangaInfoViewModel @Inject constructor(
                     img = result.data?.img ?: ""
                     title = result.data?.title ?: ""
                     description = result.data?.description ?: ""
+                    isLoading = false
                 }
             }
         }.launchIn(viewModelScope)

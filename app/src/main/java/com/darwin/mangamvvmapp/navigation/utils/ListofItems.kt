@@ -11,10 +11,13 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.MailOutline
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 
-fun bottomItems(): List<BottomNavItem> {
+fun bottomItems(): SnapshotStateList<BottomNavItem> {
 
-    return listOf(
+    return mutableStateListOf(
         BottomNavItem(
             title = "Home",
             selectedIcon = Icons.Filled.Home,
@@ -28,7 +31,7 @@ fun bottomItems(): List<BottomNavItem> {
             hasNews = false
         ),
         BottomNavItem(
-            title = "Favourites",
+            title = "Library",
             selectedIcon = Icons.Filled.Favorite,
             unselectedIcon = Icons.Outlined.FavoriteBorder,
             hasNews = false,

@@ -1,6 +1,8 @@
 package com.darwin.mangamvvmapp.navigation
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -13,6 +15,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -47,7 +50,6 @@ fun Navigator(
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
-
     var selectedItemIndex by rememberSaveable {
         mutableIntStateOf(0)
     }
@@ -91,7 +93,6 @@ fun Navigator(
                                         item.unselectedIcon
                                     },
                                     contentDescription = "",
-                                    modifier = Modifier.size(30.dp)
                                 )
                             },
                             label = {
@@ -106,17 +107,32 @@ fun Navigator(
     ) { innerPadding ->
         NavHost(
             navController = navController,
+//            enterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Start, tween(700)) },
+//            exitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Start, tween(700)) },
+//            popEnterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.End, tween(700)) },
+//            popExitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End, tween(700)) },
             startDestination = NavMangaSearchScreen,
             modifier = Modifier.padding(innerPadding)
         ) {
             composable<NavMangaSearchScreen> {
-                MangaSearchScreen(navController, mangaSearchViewModel,scrollBehavior)
+              MangaSearchScreen(navController, mangaSearchViewModel,scrollBehavior)
+
             }
-            composable<NavMangaReaderScreen> {
+            composable<NavMangaReaderScreen>(
+                exitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Start, tween(700)) },
+                popEnterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.End, tween(700)) },
+                popExitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End, tween(700)) },
+
+            ) {
                 val args = it.toRoute<NavMangaReaderScreen>()
                 MangaReaderScreen(args)
             }
-            composable<NavMangaInfoScreen> {
+            composable<NavMangaInfoScreen>(
+                enterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Start, tween(700)) },
+                exitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Start, tween(400)) },
+                popEnterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.End, tween(700)) },
+                popExitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End, tween(400)) },
+            ) {
                 val args = it.toRoute<NavMangaInfoScreen>()
                 MangaInfoScreen(
                     navController = navController,
@@ -124,7 +140,7 @@ fun Navigator(
                 )
             }
             composable<NavMangaFavouritesScreen> {
-                MangaFavouritesScreen(navController)
+                MangaFavouritesScreen(scrollBehavior,navController)
             }
         }
 

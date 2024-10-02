@@ -9,7 +9,8 @@ object NavMangaSearchScreen
 data class NavMangaReaderScreen(
     val urls:List<String>,
     val path:String,
-    val index:Int
+    val index:Int,
+    val mangaInfoUrl:String
 )
 
 @Serializable

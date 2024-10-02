@@ -14,10 +14,22 @@ import coil.request.ImageRequest
 import kotlinx.coroutines.launch
 import androidx.compose.ui.res.painterResource
 import android.util.Log
+import androidx.compose.foundation.content.MediaType.Companion.Text
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Text
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.darwin.mangamvvmapp.R
 import com.darwin.mangamvvmapp.features.feature_reader.presentation.MangaReaderViewModel
@@ -38,16 +50,29 @@ fun MangaReaderScreen(
         .build()
 
     val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
+
+    // Flag to avoid triggering pagination multiple times
+    var isPaginating by remember { mutableStateOf(false) }
 
     LaunchedEffect(listState) {
-        snapshotFlow { listState.layoutInfo.visibleItemsInfo }
-            .debounce(1000)
-            .collectLatest { visibleItems ->
-                val lastVisibleItem = visibleItems.lastOrNull()
-                val totalItems = listState.layoutInfo.totalItemsCount
-                if (lastVisibleItem != null && lastVisibleItem.index >= totalItems - 3) {
-                    Log.d("bottom", "Reached near the bottom")
+        snapshotFlow { listState.layoutInfo }
+            .debounce(500)  // Adjust debounce time as needed
+            .collectLatest { layoutInfo ->
+                val lastVisibleItem = layoutInfo.visibleItemsInfo.lastOrNull()?.index
+                val totalItems = layoutInfo.totalItemsCount
+
+                // Check if the user is near the end of the list and if pagination is not already triggered
+                if (lastVisibleItem != null && lastVisibleItem == totalItems - 1 && !isPaginating) {
+                    isPaginating = true // Set the flag to true when pagination starts
+
+                    Log.d("Pagination", "Reached the end, loading more items")
                     viewModel.addManga()
+                    isPaginating = false
+//                    coroutineScope.launch {
+//                        kotlinx.coroutines.delay(1000) // Simulating a network call or loading delay
+//                        isPaginating = false
+//                    }
                 }
             }
     }
@@ -65,16 +90,23 @@ fun MangaReaderScreen(
 
                 imageLoader.enqueue(request)
             }
-
-            Log.d("images", chapter)
-
-            AsyncImage(
-                modifier = Modifier.fillMaxWidth(),
-                model = chapter,
-                contentDescription = null,
-                contentScale = ContentScale.FillWidth,
-                placeholder = painterResource(R.drawable.placeholder_reader),
-            )
+            Box(
+                modifier = Modifier
+                    .height(200.dp)
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(chapter.name, fontSize = 30.sp)
+            }
+            chapter.img.map {
+                AsyncImage(
+                    modifier = Modifier.fillMaxWidth(),
+                    model = it,
+                    contentDescription = null,
+                    contentScale = ContentScale.FillWidth,
+                    placeholder = painterResource(R.drawable.placeholder_reader),
+                )
+            }
         }
     }
 }

@@ -112,12 +112,7 @@ fun SearchTopAppBar(
             }) {
                 Icon(Icons.Filled.Search, contentDescription = "Search")
             }
-            IconButton(onClick = {
-
-
-            }) {
-                Icon(Icons.Filled.Menu, contentDescription = "Menu")
-            }
+            IconButtonDropdownWithSharedPref()
             IconButton(onClick = {
 
 
